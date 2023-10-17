@@ -3,24 +3,22 @@ use anchor_lang::prelude::*;
 use crate::errors::TwitterError;
 use crate::states::*;
 
-pub fn add_comment(ctx: Context<AddCommentContext>, comment_content: String) -> Result<()> {
-    let comment = &mut ctx.accounts.comment;
+pub fn add_comment(ctx: Context<AddCommentContext>, _comment_content: String) -> Result<()> {
+    let _comment = &mut ctx.accounts.comment;
 
-    if comment_content.len() < COMMENT_LENGTH {
-        return Err(TwitterError::CommentTooLong.into());
-    }
+    require!(
+        _comment_content.as_bytes().len() <= COMMENT_LENGTH,
+        TwitterError::CommentTooLong
+    );
 
-    // Copy the comment content into the Comment account's content field. => into the bytearray.
-    comment.content[..comment_content.len()].copy_from_slice(comment_content.as_bytes());
+    let mut comment_data = [0u8; COMMENT_LENGTH];
+    comment_data[.._comment_content.as_bytes().len()].copy_from_slice(_comment_content.as_bytes());
+    _comment.content = comment_data;
 
-    // - comment_author
-    comment.comment_author = *ctx.accounts.comment_author.to_account_info().key;
-    // - parent_tweet
-    comment.parent_tweet = *ctx.accounts.tweet.to_account_info().key;
-    // - content_length
-    comment.content_length = comment_content.len() as u16;
-    // - bump
-    comment.bump = *ctx.bumps.get("comment").unwrap();
+    _comment.comment_author = *ctx.accounts.comment_author.key;
+    _comment.parent_tweet = ctx.accounts.tweet.key();
+    _comment.content_length = _comment_content.as_bytes().len() as u16;
+    _comment.bump = *ctx.bumps.get("comment").unwrap();
 
     Ok(())
 }

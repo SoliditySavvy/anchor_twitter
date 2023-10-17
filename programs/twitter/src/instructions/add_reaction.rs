@@ -10,6 +10,7 @@ pub fn add_reaction(ctx: Context<AddReactionContext>, reaction: ReactionType) ->
     match reaction {
         ReactionType::Like => {
             // Increment the likes count in the tweet and handle overflow.
+            tweet_reaction.reaction = ReactionType::Like;
             tweet.likes = tweet
                 .likes
                 .checked_add(1)
@@ -17,6 +18,7 @@ pub fn add_reaction(ctx: Context<AddReactionContext>, reaction: ReactionType) ->
         }
         ReactionType::Dislike => {
             // Increment the dislikes count in the tweet and handle overflow.
+            tweet_reaction.reaction = ReactionType::Dislike;
             tweet.dislikes = tweet
                 .dislikes
                 .checked_add(1)

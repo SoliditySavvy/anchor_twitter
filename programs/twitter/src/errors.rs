@@ -16,4 +16,6 @@ pub enum TwitterError {
     MinDislikesReached,
     #[msg("Comment too Long")]
     CommentTooLong,
+    #[msg("Invalid Raection Type")]
+    InvalidReactionType,
 }
