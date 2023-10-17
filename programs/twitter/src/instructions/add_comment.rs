@@ -6,30 +6,21 @@ use crate::states::*;
 pub fn add_comment(ctx: Context<AddCommentContext>, comment_content: String) -> Result<()> {
     let comment = &mut ctx.accounts.comment;
 
-    // -------------------------------------------------------------------------------------------
-    // TODO: In order for this function to work properly, we need to first check if comment_content
-    // has compliant length. This is due to the fact we want to copy comment_content into the
-    // bytearray which will be stored inside Comment Account, the bytearray is defined so that it
-    // can contain maximum of 500 bytes.
+    if comment_content.len() < COMMENT_LENGTH {
+        return Err(TwitterError::CommentTooLong.into());
+    }
 
-    // HINT: check how is this length check performed within initialize_tweet function
-    // -------------------------------------------------------------------------------------------
+    // Copy the comment content into the Comment account's content field. => into the bytearray.
+    comment.content[..comment_content.len()].copy_from_slice(comment_content.as_bytes());
 
-    // TODO: once we are sure that the length is correct, we have to copy contents of the comment_content
-    // into the bytearray.
-
-    // HINT: check how we copy the strings within the initialize_tweet function
-    // -------------------------------------------------------------------------------------------
-
-    // TODO: Lastly we want to setup all other Comment variables, check states.rs for the Comment struct,
-    // in order to find out what variables have to be filled.
-
-    // HINT:
     // - comment_author
+    comment.comment_author = *ctx.accounts.comment_author.to_account_info().key;
     // - parent_tweet
+    comment.parent_tweet = *ctx.accounts.tweet.to_account_info().key;
     // - content_length
-    // - bump (use the get() method to get the bump of the "comment" account)
-    // -------------------------------------------------------------------------------------------
+    comment.content_length = comment_content.len() as u16;
+    // - bump
+    comment.bump = *ctx.bumps.get("comment").unwrap();
 
     Ok(())
 }
@@ -50,19 +41,15 @@ pub struct AddCommentContext<'info> {
             ],
         bump)]
     pub comment: Account<'info, Comment>,
-
-    // -------------------------------------------------------------------------------------------
-    // TODO fill the required account macro below - we want to check that a PDA account with correct
-    // seeds and bump was submitted
-
-    // HINT:
-    // - account must be mutable
-    // - seeds are :    tweet.topic[..tweet.topic_length as usize].as_ref()
-    //                  TWEET_SEED.as_bytes(),
-    //                  tweet.tweet_author.key().as_ref()
-    // - lastly, check the correctness of bump using: bump = tweet.bump
-    // -------------------------------------------------------------------------------------------
-    #[account()]
+    #[account(
+        mut,
+        seeds = [
+            tweet.topic[..tweet.topic_length as usize].as_ref(),
+            TWEET_SEED.as_bytes(),
+            tweet.tweet_author.key().as_ref()
+        ],
+        bump = tweet.bump
+    )]
     pub tweet: Account<'info, Tweet>,
     pub system_program: Program<'info, System>,
 }

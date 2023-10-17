@@ -14,7 +14,10 @@ pub fn initialize_tweet(
         topic.as_bytes().len() <= TOPIC_LENGTH,
         TwitterError::TopicTooLong
     );
-
+    require!(
+        content.as_bytes().len() <= CONTENT_LENGTH,
+        TwitterError::ContentTooLong
+    );
     // -------------------------------------------------------------------------------------------
     // TODO make sure to also check for the length of Content
 
@@ -41,12 +44,16 @@ pub fn initialize_tweet(
 
     // HINT:
     // - topic_length
+    initialized_tweet.topic_length = topic.as_bytes().len() as u8;
     // - tweet_author
+    initialized_tweet.tweet_author = *ctx.accounts.tweet_authority.key;
     // - likes
+    initialized_tweet.likes = 0;
     // - dislikes
-    // - bump is already updated below
-    // -------------------------------------------------------------------------------------------
+    initialized_tweet.dislikes = 0;
+    // - bump
     initialized_tweet.bump = *ctx.bumps.get("tweet").unwrap();
+    // -------------------------------------------------------------------------------------------
 
     Ok(())
 }
