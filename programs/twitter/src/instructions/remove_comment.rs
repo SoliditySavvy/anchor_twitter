@@ -3,9 +3,6 @@ use anchor_lang::prelude::*;
 use crate::states::*;
 
 pub fn remove_comment(_ctx: Context<RemoveCommentContext>) -> Result<()> {
-    // We do not need to perform anything here as everything needed is within the RemoveCommentContext
-    // NOTICE: we use `close` atribute within the RemoveCommentContext, this will tell the program that
-    // we want to close the specified comment Account and the Rent will be refunded to the comment_author
     Ok(())
 }
 #[derive(Accounts)]

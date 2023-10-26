@@ -1,13 +1,3 @@
-// The task is to add code everywhere where you find // TODO.or todo!()
-// Once you complete the TODOs, make sure that you delete all `todo!()` macros and
-// you can try to run the tests using `anchor test` command and start debugging ;-)
-
-// We recommend you to complete the code in files in the following order:
-// 1. initialize_tweet.rs
-// 2. add_reaction.rs
-// 3. add_comment.rs
-// 4. remove_reaction.rs
-
 use crate::instructions::*;
 use anchor_lang::prelude::*;
 
